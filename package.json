@@ -1,0 +1,8 @@
+{
+  "name": "discord-wallet-v2",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:fjij/discord-wallet-v2.git",
+  "author": "fjij <30779570+fjij@users.noreply.github.com>",
+  "license": "MIT"
+}
