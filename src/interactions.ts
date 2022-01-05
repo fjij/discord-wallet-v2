@@ -7,8 +7,24 @@ import {
 
 import { getConnector } from "./connector";
 
+import { Guild } from "./db";
+
+import { UserFacingError } from "./error";
+
 export function interactionUtils(interaction: CommandInteraction<CacheType>) {
-  async function connect() {
+
+  async function guild() {
+    const guild = interaction.guild;
+    if (guild) {
+      const result = await Guild.findOne({ guildId: guild.id });
+      if (result) {
+        return result;
+      }
+    }
+    throw new UserFacingError("Server hasn't setup this bot yet.");
+  }
+
+  async function connect(chainId: number) {
     return await getConnector(interaction.user.id, async (buffer) => {
       await interaction.reply({ 
         ephemeral: true,
@@ -19,7 +35,7 @@ export function interactionUtils(interaction: CommandInteraction<CacheType>) {
           description: "qr code",
         }],
       });
-    });
+    }, chainId);
   };
 
   async function reply(
@@ -32,5 +48,5 @@ export function interactionUtils(interaction: CommandInteraction<CacheType>) {
       await interaction.reply({ ...objectMsg, ephemeral: true, files: [], });
     }
   }
-  return { connect, reply };
+  return { connect, reply, guild };
 }

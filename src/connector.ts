@@ -1,9 +1,16 @@
-import WalletConnect from '@walletconnect/client';
+import WalletConnect from "@walletconnect/client";
 import QRCode from "qrcode";
-import { config } from "./config";
+import {UserFacingError} from "./error";
 
 // Keep websocket connections alive in-memory
-const connectors: { [key: string]: WalletConnect } = {};
+const connectors: {
+  [key: string]: {
+    connector: WalletConnect;
+    chainId: number;
+  };
+} = {};
+
+// TODO resolve parallel access issues
 
 /**
  * Attempts to create or retrieve a walletconnect connector for a userId. The
@@ -18,8 +25,13 @@ const connectors: { [key: string]: WalletConnect } = {};
 export async function getConnector(
   userId: string,
   handleQrCode: (buffer: Buffer) => void,
+  chainId: number,
 ) {
-  if (!connectors[userId] || !connectors[userId].connected) {
+  if (
+    !connectors[userId] ||
+    !connectors[userId].connector.connected ||
+    connectors[userId].chainId !== chainId
+  ) {
     const connector = new WalletConnect({
       bridge: "https://bridge.walletconnect.org",
       qrcodeModal: {
@@ -30,15 +42,23 @@ export async function getConnector(
         close: () => {},
       },
     });
-    await connector.connect({ chainId: config.chainId });
-    connectors[userId] = connector;
+    await connector.connect({ chainId });
+    if (connector.chainId !== chainId) {
+      await connector.killSession();
+      throw new UserFacingError(
+        `Wallet not connected to the correct network. Please use the network`
+        + ` with chain id \`${chainId}\``,
+      );
+    }
+    await clearConnector(userId);
+    connectors[userId] = { connector, chainId };
   } 
-  return connectors[userId];
+  return connectors[userId].connector;
 }
 
 export async function clearConnector(userId: string) {
-  if (connectors[userId] && connectors[userId].connected) {
-    const connector = connectors[userId];
+  if (connectors[userId] && connectors[userId].connector.connected) {
+    const connector = connectors[userId].connector;
     delete connectors[userId];
     await connector.killSession();
   }

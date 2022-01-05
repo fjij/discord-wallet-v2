@@ -1,15 +1,17 @@
 import { CacheType, CommandInteraction } from "discord.js";
 import { interactionUtils } from "../interactions";
-import { Signature } from "../db";
+import { User } from "../db";
 
 export async function connect(interaction: CommandInteraction<CacheType>) {
   const utils = interactionUtils(interaction);
 
-  const connector = await utils.connect();
+  const { reply, guild } = utils;
+
+  const { chainId } = await guild();
+
+  const connector = await utils.connect(chainId);
 
   const { user } = interaction;
-
-  const { reply } = utils;
 
   await reply("Please use your wallet to verify your Discord account");
 
@@ -20,7 +22,7 @@ export async function connect(interaction: CommandInteraction<CacheType>) {
       `My Discord account is ${user.tag}\n(id ${user.id})`,
       account,
     ]);
-    await Signature.findOneAndUpdate(
+    await User.findOneAndUpdate(
       { userId: user.id },
       { userId: user.id, account, signature },
       { new: true, upsert: true },

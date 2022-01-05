@@ -1,15 +1,16 @@
 import { CacheType, CommandInteraction } from "discord.js";
 import { ethers } from "ethers";
-import { Signature } from "../db";
+import { User } from "../db";
 import { interactionUtils } from "../interactions";
 
 export async function transfer(interaction: CommandInteraction<CacheType>) {
-  const { connect, reply } = interactionUtils(interaction);
-  const connector = await connect();
+  const { connect, reply, guild } = interactionUtils(interaction);
+  const { chainId } = await guild();
+  const connector = await connect(chainId);
   const [account] = connector.accounts;
   const to = interaction.options.get("to", true).user!;
   const amount = interaction.options.get("amount", true).value! as string;
-  const result = await Signature.findOne({ userId: to.id });
+  const result = await User.findOne({ userId: to.id });
   if (!result) {
     return await reply("The recepient hasn't connected a wallet.");
   }

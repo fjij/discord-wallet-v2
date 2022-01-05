@@ -1,11 +1,12 @@
 import { REST } from '@discordjs/rest';
 import { Routes } from 'discord-api-types/v9';
-import { commands } from "./command-definitions";
+import { baseCommands } from "./command-definitions";
+import { config } from "./config";
 
 import dotenv from "dotenv";
 dotenv.config();
 
-const rest = new REST({ version: '9' }).setToken(process.env.BOT_TOKEN!);
+const rest = new REST({ version: '9' }).setToken(config.botToken);
 
 (async () => {
   try {
@@ -13,10 +14,10 @@ const rest = new REST({ version: '9' }).setToken(process.env.BOT_TOKEN!);
 
     await rest.put(
       Routes.applicationGuildCommands(
-        process.env.APPLICATION_ID!,
+        config.applicationId,
         process.env.GUILD_ID!,
       ),
-      { body: commands },
+      { body: baseCommands },
     );
 
     console.log('Successfully reloaded application (/) commands.');
