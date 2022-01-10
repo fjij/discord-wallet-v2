@@ -1,6 +1,6 @@
 import WalletConnect from "@walletconnect/client";
 import QRCode from "qrcode";
-import {UserFacingError} from "./error";
+import { UserFacingError } from "./error";
 
 // Keep websocket connections alive in-memory
 const connectors: {
@@ -25,7 +25,7 @@ const connectors: {
 export async function getConnector(
   userId: string,
   handleQrCode: (buffer: Buffer) => void,
-  chainId: number,
+  chainId: number
 ) {
   if (
     !connectors[userId] ||
@@ -46,13 +46,13 @@ export async function getConnector(
     if (connector.chainId !== chainId) {
       await connector.killSession();
       throw new UserFacingError(
-        `Wallet not connected to the correct network. Please use the network`
-        + ` with chain id \`${chainId}\``,
+        `Wallet not connected to the correct network. Please use the network` +
+          ` with chain id \`${chainId}\``
       );
     }
     await clearConnector(userId);
     connectors[userId] = { connector, chainId };
-  } 
+  }
   return connectors[userId].connector;
 }
 
