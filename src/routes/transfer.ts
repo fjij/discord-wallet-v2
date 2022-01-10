@@ -21,7 +21,7 @@ export function useRoute(router: Router) {
     )
     .use(walletConnect)
     .use(async (rawCtx) => {
-      const ctx = rawCtx as typeof rawCtx & walletConnectContext;
+      const ctx = rawCtx.extend<walletConnectContext>();
       const [account] = ctx.connector.accounts;
       const { to, amount } = ctx.getOptions();
       const result = await ConnectedUserModel.findOne({ userId: to.id });

@@ -7,7 +7,7 @@ export function useRoute(router: Router) {
     .command(new Command("connect", "Connect your mobile wallet", {}))
     .use(walletConnect)
     .use(async (rawCtx) => {
-      const ctx = rawCtx as typeof rawCtx & walletConnectContext;
+      const ctx = rawCtx.extend<walletConnectContext>();
 
       await ctx.reply("Please use your wallet to verify your Discord account");
 

@@ -38,6 +38,10 @@ export class CommandContext<T extends OptionMap> {
     }
   }
 
+  extend<T>(): typeof this & T {
+    return this as typeof this & T;
+  }
+
   getOptions() {
     const entries = Object.keys(this.command.options).map((name) => {
       const option = this.command.options[name];
