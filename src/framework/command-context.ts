@@ -3,28 +3,26 @@ import type {
   CacheType,
   MessagePayload,
   WebhookEditMessageOptions,
-  CommandInteractionOptionResolver,
   User,
   Guild,
 } from "discord.js";
 
-export class CommandContext {
+import { Command, OptionMap, CommandOptionType, OptionType } from "./command";
+
+export class CommandContext<T extends OptionMap> {
+  command: Command<T>;
+
   interaction: CommandInteraction<CacheType>;
 
   user: User;
 
   guild: Guild | null;
 
-  options: Omit<
-    CommandInteractionOptionResolver<CacheType>,
-    "getMessage" | "getFocused"
-  >;
-
-  constructor(interaction: CommandInteraction<CacheType>) {
+  constructor(command: Command<T>, interaction: CommandInteraction<CacheType>) {
+    this.command = command;
     this.interaction = interaction;
     this.user = interaction.user;
     this.guild = interaction.guild;
-    this.options = interaction.options;
   }
 
   async reply(msg: string | MessagePayload | WebhookEditMessageOptions) {
@@ -38,6 +36,36 @@ export class CommandContext {
         files: [],
       });
     }
+  }
+
+  getOptions() {
+    const entries = Object.keys(this.command.options).map((name) => {
+      const option = this.command.options[name];
+      const options = this.interaction.options;
+      switch (option.type) {
+        case CommandOptionType.User:
+          return [name, options.getUser(name, option.required)];
+        case CommandOptionType.Role:
+          return [name, options.getRole(name, option.required)];
+        case CommandOptionType.Number:
+          return [name, options.getNumber(name, option.required)];
+        case CommandOptionType.String:
+          return [name, options.getString(name, option.required)];
+        case CommandOptionType.Boolean:
+          return [name, options.getBoolean(name, option.required)];
+        case CommandOptionType.Channel:
+          return [name, options.getChannel(name, option.required)];
+        case CommandOptionType.Mentionable:
+          return [name, options.getMentionable(name, option.required)];
+        case CommandOptionType.Integer:
+          return [name, options.getInteger(name, option.required)];
+        default:
+          return [name, undefined];
+      }
+    }).map(([a, b]) => [a, b === null ? undefined : b]);
+
+    const options = Object.fromEntries(entries);
+    return options as { [name in keyof T]: OptionType<T[name]> };
   }
 
   isAdmin(): boolean {

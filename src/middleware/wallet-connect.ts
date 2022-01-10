@@ -4,7 +4,7 @@ import { GuildModel } from "../db";
 import { getConnector } from "../connector";
 import { UserFacingError } from "../error";
 
-async function getGuild(ctx: CommandContext) {
+async function getGuild(ctx: CommandContext<any>) {
   const guild = ctx.interaction.guild;
   if (guild) {
     const result = await GuildModel.findOne({ guildId: guild.id });
@@ -19,7 +19,7 @@ export interface walletConnectContext {
   connector: WalletConnect;
 }
 
-export async function walletConnect(ctx: CommandContext) {
+export async function walletConnect(ctx: CommandContext<any>) {
   const { chainId } = await getGuild(ctx);
   const connector = await getConnector(
     ctx.user.id,
@@ -38,6 +38,6 @@ export async function walletConnect(ctx: CommandContext) {
     },
     chainId
   );
-  (ctx as CommandContext & walletConnectContext).connector = connector;
+  (ctx as CommandContext<any> & walletConnectContext).connector = connector;
   return ctx;
 }
