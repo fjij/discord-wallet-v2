@@ -1,37 +1,35 @@
-import { CacheType, CommandInteraction } from "discord.js";
+import { walletConnectContext } from "../middleware";
 import { ethers } from "ethers";
-import { User } from "../db";
-import { interactionUtils } from "../interactions";
+import { UserModel } from "../db";
+import { CommandContext } from "../framework";
 
-export async function transfer(interaction: CommandInteraction<CacheType>) {
-  const { connect, reply, guild } = interactionUtils(interaction);
-  const { chainId } = await guild();
-  const connector = await connect(chainId);
-  const [account] = connector.accounts;
-  const to = interaction.options.get("to", true).user!;
-  const amount = interaction.options.get("amount", true).value! as string;
-  const result = await User.findOne({ userId: to.id });
+export async function transfer(rawCtx: CommandContext) {
+  const ctx = rawCtx as CommandContext & walletConnectContext;
+  const [account] = ctx.connector.accounts;
+  const to = ctx.options.get("to", true).user!;
+  const amount = ctx.options.get("amount", true).value! as string;
+  const result = await UserModel.findOne({ userId: to.id });
   if (!result) {
-    return await reply("The recepient hasn't connected a wallet.");
+    return await ctx.reply("The recepient hasn't connected a wallet.");
   }
   const toAccount = result.account;
   const bnAmount = ethers.utils.parseEther(amount);
-  await reply(
-    `Sending ${ethers.utils.formatEther(bnAmount)} ETH to ${to.toString()}\n`
-    + `Address: \`${toAccount}\``,
+  await ctx.reply(
+    `Sending ${ethers.utils.formatEther(bnAmount)} ETH to ${to.toString()}\n` +
+      `Address: \`${toAccount}\``
   );
   try {
-    const hash = await connector.sendTransaction({
+    const hash = await ctx.connector.sendTransaction({
       from: account,
       to: toAccount,
       data: "0x",
       value: bnAmount.toHexString(),
     });
-    await reply(
-      `Sent ${ethers.utils.formatEther(bnAmount)} ETH to ${to.toString()}\n`
-      + `Transaction Hash: \`${hash}\``,
+    await ctx.reply(
+      `Sent ${ethers.utils.formatEther(bnAmount)} ETH to ${to.toString()}\n` +
+        `Transaction Hash: \`${hash}\``
     );
   } catch {
-    await reply(`Transaction failed (rejected)`);
+    await ctx.reply(`Transaction failed (rejected)`);
   }
 }

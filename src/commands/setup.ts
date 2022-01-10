@@ -1,40 +1,33 @@
-import { CacheType, CommandInteraction } from "discord.js";
-import { REST } from '@discordjs/rest';
-import { Routes } from 'discord-api-types/v9';
-import { baseCommands, getCustomCommands } from "../command-definitions";
-import { config } from "../config";
-import { interactionUtils } from "../interactions";
-import { Guild } from "../db";
+import {
+  baseCommands,
+  getCustomCommands,
+  registerGuildCommands,
+} from "../manager";
 
-export async function setup(interaction: CommandInteraction<CacheType>) {
-  const { reply } = interactionUtils(interaction);
+import { GuildModel } from "../db";
+import { CommandContext } from "../framework";
 
-  const { memberPermissions } = interaction;
-  if (!(memberPermissions && memberPermissions.has("ADMINISTRATOR", true))) {
-    return await reply("Sorry, only an administrator can do this.");
+export async function setup(ctx: CommandContext) {
+  if (!ctx.guild) {
+    return await ctx.reply("Must be in a server.");
   }
 
-  const chainId = interaction.options.get("chain-id", false)?.value ?? 1;
-  const symbol = (
-    interaction.options.get("symbol", false)?.value as string | null
-  ) ?? "ETH";
-  await reply("Setting up bot...");
+  const chainId = ctx.options.get("chain-id", false)?.value ?? 1;
+  const symbol =
+    (ctx.options.get("symbol", false)?.value as string | null) ?? "ETH";
+  await ctx.reply("Setting up bot...");
   try {
-    const rest = new REST({ version: '9' }).setToken(config.botToken);
-    await rest.put(
-      Routes.applicationGuildCommands(
-        config.applicationId,
-        process.env.GUILD_ID!,
-      ),
-      { body: [...baseCommands, ...getCustomCommands({ symbol })] },
+    await registerGuildCommands(ctx.guild.id, [
+      ...baseCommands,
+      ...getCustomCommands({ symbol }),
+    ]);
+    await GuildModel.findOneAndUpdate(
+      { guildId: ctx.guild.id },
+      { guildId: ctx.guild.id, chainId, symbol },
+      { new: true, upsert: true }
     );
-    await Guild.findOneAndUpdate(
-      { guildId: interaction.guild },
-      { guildId: interaction.guild, chainId, symbol },
-      { new: true, upsert: true },
-    );
-    return await reply("Bot has been set up.");
+    return await ctx.reply("Bot has been set up.");
   } catch {
-    return await reply("Couldn't set up bot. Please contact support");
+    return await ctx.reply("Couldn't set up bot. Please contact support");
   }
 }

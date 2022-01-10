@@ -1,20 +1,15 @@
-import { CacheType, CommandInteraction } from "discord.js";
-
-import { User } from "../db";
-
+import { CommandContext } from "../framework";
+import { UserModel } from "../db";
 import { clearConnector } from "../connector";
 
-import { interactionUtils } from "../interactions";
-
-export async function disconnect(interaction: CommandInteraction<CacheType>) {
-  const { reply } = interactionUtils(interaction);
-  await reply("Clearing user data");
+export async function disconnect(ctx: CommandContext) {
+  await ctx.reply("Clearing user data");
 
   try {
-    await clearConnector(interaction.user.id);
-    await User.deleteOne({ userId: interaction.user.id });
-    await reply("User data cleared.");
+    await clearConnector(ctx.user.id);
+    await UserModel.deleteOne({ userId: ctx.user.id });
+    await ctx.reply("User data cleared.");
   } catch {
-    await reply("Failed to clear user data. Please contact support.");
+    await ctx.reply("Failed to clear user data. Please contact support.");
   }
 }

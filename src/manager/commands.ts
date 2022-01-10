@@ -1,7 +1,10 @@
 import {
   APIApplicationCommand,
   ApplicationCommandOptionType,
-} from 'discord-api-types/v9';
+  Routes,
+} from "discord-api-types/v9";
+import { config } from "../config";
+import { REST } from "@discordjs/rest";
 
 export const baseCommands: Partial<APIApplicationCommand>[] = [
   {
@@ -11,24 +14,26 @@ export const baseCommands: Partial<APIApplicationCommand>[] = [
       {
         name: "chain-id",
         type: ApplicationCommandOptionType.Number,
-        description: "The ID of the blockchain to use - default 1 (mainnet ethereum)",
+        description:
+          "The ID of the blockchain to use - default 1 (mainnet ethereum)",
       },
       {
         name: "symbol",
         type: ApplicationCommandOptionType.String,
-        description: "The symbol of the blockchain's native token - default ETH",
-      }
+        description:
+          "The symbol of the blockchain's native token - default ETH",
+      },
     ],
   },
 ];
 
 interface CustomCommandsOptions {
   symbol: string;
-};
+}
 
-export function getCustomCommands(
-  { symbol }: CustomCommandsOptions,
-): Partial<APIApplicationCommand>[] {
+export function getCustomCommands({
+  symbol,
+}: CustomCommandsOptions): Partial<APIApplicationCommand>[] {
   return [
     {
       name: "connect",
@@ -57,4 +62,15 @@ export function getCustomCommands(
       ],
     },
   ];
+}
+
+export async function registerGuildCommands(
+  guildId: string,
+  commands: Partial<APIApplicationCommand>[]
+) {
+  const rest = new REST({ version: "9" }).setToken(config.botToken);
+  await rest.put(
+    Routes.applicationGuildCommands(config.applicationId, guildId),
+    { body: commands }
+  );
 }
