@@ -1,15 +1,15 @@
 import WalletConnect from "@walletconnect/client";
 import { CommandContext } from "../framework";
-import { GuildModel } from "../db";
+import { GuildSettingsModel } from "../db";
 import { getConnector } from "../connector";
 import { UserFacingError } from "../error";
 
-async function getGuild(ctx: CommandContext<any>) {
+async function getGuildSettings(ctx: CommandContext<any>) {
   const guild = ctx.interaction.guild;
   if (guild) {
-    const result = await GuildModel.findOne({ guildId: guild.id });
-    if (result) {
-      return result;
+    const guildSettings = await GuildSettingsModel.findOne({ guildId: guild.id });
+    if (guildSettings) {
+      return guildSettings;
     }
   }
   throw new UserFacingError("Server hasn't setup this bot yet.");
@@ -20,7 +20,7 @@ export interface walletConnectContext {
 }
 
 export async function walletConnect(ctx: CommandContext<any>) {
-  const { chainId } = await getGuild(ctx);
+  const { chainId } = await getGuildSettings(ctx);
   const connector = await getConnector(
     ctx.user.id,
     async (buffer) => {

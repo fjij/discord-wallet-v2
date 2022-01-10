@@ -1,7 +1,7 @@
 import { Router, Command, CommandOptionType } from "../framework";
 import { walletConnect, walletConnectContext } from "../middleware";
 import { ethers } from "ethers";
-import { UserModel } from "../db";
+import { ConnectedUserModel } from "../db";
 
 export function useRoute(router: Router) {
   router
@@ -24,7 +24,7 @@ export function useRoute(router: Router) {
       const ctx = rawCtx as typeof rawCtx & walletConnectContext;
       const [account] = ctx.connector.accounts;
       const { to, amount } = ctx.getOptions();
-      const result = await UserModel.findOne({ userId: to.id });
+      const result = await ConnectedUserModel.findOne({ userId: to.id });
       if (!result) {
         return await ctx.reply("The recepient hasn't connected a wallet.");
       }

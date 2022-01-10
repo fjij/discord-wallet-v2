@@ -1,5 +1,5 @@
 import { Router, Command } from "../framework";
-import { UserModel } from "../db";
+import { ConnectedUserModel } from "../db";
 import { walletConnect, walletConnectContext } from "../middleware";
 
 export function useRoute(router: Router) {
@@ -18,7 +18,7 @@ export function useRoute(router: Router) {
           `My Discord account is ${ctx.user.tag}\n(id ${ctx.user.id})`,
           account,
         ]);
-        await UserModel.findOneAndUpdate(
+        await ConnectedUserModel.findOneAndUpdate(
           { userId: ctx.user.id },
           { userId: ctx.user.id, account, signature },
           { new: true, upsert: true }

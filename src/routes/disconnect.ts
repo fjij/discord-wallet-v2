@@ -1,5 +1,5 @@
 import { Router, Command } from "../framework";
-import { UserModel } from "../db";
+import { ConnectedUserModel } from "../db";
 import { clearConnector } from "../connector";
 
 export function useRoute(router: Router) {
@@ -16,7 +16,7 @@ export function useRoute(router: Router) {
 
       try {
         await clearConnector(ctx.user.id);
-        await UserModel.deleteOne({ userId: ctx.user.id });
+        await ConnectedUserModel.deleteOne({ userId: ctx.user.id });
         await ctx.reply("User data cleared.");
       } catch {
         await ctx.reply("Failed to clear user data. Please contact support.");

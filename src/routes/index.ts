@@ -18,10 +18,12 @@ import { useRoute as useSetup } from "./setup";
 import { useRoute as useDisconnect } from "./disconnect";
 import { useRoute as useTransfer } from "./transfer";
 
-export function useRoutes(router: Router) {
-  router.catch(errorHandler);
-  useConnect(router);
-  useSetup(router);
-  useDisconnect(router);
-  useTransfer(router);
-}
+export const router = new Router();
+
+router.catch(errorHandler);
+useConnect(router);
+useSetup(router);
+useDisconnect(router);
+useTransfer(router);
+
+export const APICommands = router.getAPICommands();

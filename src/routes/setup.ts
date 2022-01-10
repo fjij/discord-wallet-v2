@@ -1,5 +1,5 @@
 import { Router, Command, CommandOptionType } from "../framework";
-import { GuildModel } from "../db";
+import { GuildSettingsModel } from "../db";
 import { adminOnly } from "../middleware";
 import {
   registerGuildCommands,
@@ -32,7 +32,7 @@ export function useRoute(router: Router) {
           ...baseCommands,
           ...getCustomCommands({ symbol }),
         ]);
-        await GuildModel.findOneAndUpdate(
+        await GuildSettingsModel.findOneAndUpdate(
           { guildId: ctx.guild!.id },
           { guildId: ctx.guild!.id, chainId: chain, symbol },
           { new: true, upsert: true }

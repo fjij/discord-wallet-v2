@@ -1,14 +1,14 @@
 import mongoose, { Schema } from "mongoose";
 
-export interface User {
+export interface ConnectedUser {
   userId: string;
   account: string;
   signature: string;
 }
 
-export const UserModel = mongoose.model<User>(
+export const ConnectedUserModel = mongoose.model<ConnectedUser>(
   "User",
-  new Schema<User>({
+  new Schema<ConnectedUser>({
     userId: { type: String, unique: true, required: true },
     account: { type: String, required: true },
     signature: { type: String, required: true },

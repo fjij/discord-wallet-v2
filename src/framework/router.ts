@@ -1,3 +1,4 @@
+import { APIApplicationCommand } from "discord-api-types";
 import type { Interaction, CacheType } from "discord.js";
 import { Route, ErrorHandler } from "./route";
 import { Command, OptionMap } from "./command";
@@ -47,5 +48,11 @@ export class Router {
         route.catch(handler);
       }
     });
+  }
+
+  getAPICommands(): Partial<APIApplicationCommand>[] {
+    return Object.values(this.commandRoutes).map(({ command }) =>
+      command.getAPICommand()
+    );
   }
 }

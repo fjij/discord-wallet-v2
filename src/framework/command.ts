@@ -1,4 +1,5 @@
 import {
+  APIApplicationCommand,
   APIApplicationCommandOption,
   ApplicationCommandOptionType,
 } from "discord-api-types";
@@ -53,5 +54,16 @@ export class Command<T extends OptionMap> {
     this.name = name;
     this.description = description;
     this.options = options;
+  }
+
+  getAPICommand(): Partial<APIApplicationCommand> {
+    return {
+      name: this.name,
+      description: this.description,
+      options: Object.entries(this.options).map(([name, rest]) => ({
+        name,
+        ...rest,
+      })) as APIApplicationCommandOption[],
+    };
   }
 }

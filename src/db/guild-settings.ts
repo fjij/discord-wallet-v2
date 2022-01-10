@@ -1,14 +1,14 @@
 import mongoose, { Schema } from "mongoose";
 
-export interface Guild {
+export interface GuildSettings {
   guildId: string;
   chainId: number;
   symbol: string;
 }
 
-export const GuildModel = mongoose.model<Guild>(
+export const GuildSettingsModel = mongoose.model<GuildSettings>(
   "Guild",
-  new Schema<Guild>({
+  new Schema<GuildSettings>({
     guildId: { type: String, unique: true, required: true },
     chainId: { type: Number, required: true, default: 1 },
     symbol: { type: String, required: true, default: "ETH" },
