@@ -1,5 +1,5 @@
-import { registerGuildCommands } from "./manager";
-import { router } from "./routes";
+import { registerGuildCommands } from "../src/discord";
+import { router } from "../src/routes";
 
 import dotenv from "dotenv";
 dotenv.config();

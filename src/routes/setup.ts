@@ -1,11 +1,6 @@
 import { Router, Command, CommandOptionType } from "../framework";
 import { GuildSettingsModel } from "../db";
 import { adminOnly } from "../middleware";
-import {
-  registerGuildCommands,
-  baseCommands,
-  getCustomCommands,
-} from "../manager";
 
 export function useRoute(router: Router) {
   router
@@ -28,10 +23,6 @@ export function useRoute(router: Router) {
       const { chain = 1, symbol = "ETH" } = ctx.getOptions();
 
       try {
-        await registerGuildCommands(ctx.guild!.id, [
-          ...baseCommands,
-          ...getCustomCommands({ symbol }),
-        ]);
         await GuildSettingsModel.findOneAndUpdate(
           { guildId: ctx.guild!.id },
           { guildId: ctx.guild!.id, chainId: chain, symbol },

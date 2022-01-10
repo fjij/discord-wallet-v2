@@ -6,7 +6,7 @@
   "author": "fjij <30779570+fjij@users.noreply.github.com>",
   "license": "MIT",
   "scripts": {
-    "commands": "npx ts-node src/register-commands.ts",
+    "commands": "npx ts-node scripts/register-commands.ts",
     "serve": "npx ts-node src/index.ts"
   },
   "devDependencies": {

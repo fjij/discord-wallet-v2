@@ -1,6 +1,6 @@
 import { Router, Command } from "../framework";
 import { ConnectedUserModel } from "../db";
-import { clearConnector } from "../connector";
+import { clearConnector } from "../connector-manager";
 
 export function useRoute(router: Router) {
   router

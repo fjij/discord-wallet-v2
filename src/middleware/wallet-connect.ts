@@ -1,7 +1,7 @@
 import WalletConnect from "@walletconnect/client";
 import { CommandContext } from "../framework";
 import { GuildSettingsModel } from "../db";
-import { getConnector } from "../connector";
+import { getConnector } from "../connector-manager";
 import { UserFacingError } from "../error";
 
 async function getGuildSettings(ctx: CommandContext<any>) {
