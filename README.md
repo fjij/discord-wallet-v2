@@ -1,5 +1,3 @@
 # discord-wallet-v2
 
-Sequel to [kangaroo](https://github.com/fjij/kangaroo)
-
-Work in progress
+This project has been archived due to advancements in the Ethereum ecosystem - see WalletConnect for enabling useful non-browser Web3 experiences.
